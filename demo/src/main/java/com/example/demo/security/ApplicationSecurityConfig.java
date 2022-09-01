@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import com.example.demo.auth.ApplicationUserService;
+import com.example.demo.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -42,6 +44,10 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
                 .authorizeRequests()
                 .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(STUDENT.name())
@@ -50,16 +56,14 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 //                .antMatchers(HttpMethod.PUT, "/management/api/**").hasAuthority(ApplicationUserPermission.COURSE_WRITE.getPermission())
 //                .antMatchers(HttpMethod.GET,"/management/api/**").hasAnyRole(ADMIN.name(), ADMINTRAINEE.name())
                 .anyRequest()
-                .authenticated()
-                .and()
+                .authenticated();
+                /*.and()
                 //.httpBasic(); basic auth
                 .formLogin()
                 .loginPage("/login").permitAll() //form-based authentication
                 .defaultSuccessUrl("/courses", true)
                 .and()
                 .rememberMe()//defaults to two weeks
-                    /*.tokenValiditySeconds((int)TimeUnit.DAYS.toSeconds(21))
-                    .key("somethingverysecured")  //key used to hash the contents (token, exp date)*/
                 .and()
                 .logout()
                     .logoutUrl("/logout")
@@ -67,7 +71,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID", "remember-me")
-                    .logoutSuccessUrl("/login");
+                    .logoutSuccessUrl("/login");*/
         /* we want to authorize requests, any request must be authenticated
         * (the client must specify their username and password) and the
         * mechanism that we want to enforce the authenticity of the client }
